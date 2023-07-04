@@ -1,24 +1,19 @@
-const slider = Array.from(document.querySelectorAll(".slider__item"));
-const prev = document.querySelector(".slider__arrow_prev");
-const next = document.querySelector(".slider__arrow_next");
-let slideId = 0;
+const arrowPrev = document.querySelector(".slider__arrow_prev");
+const arrowNext = document.querySelector(".slider__arrow_next");
+const sliderItems = [...document.querySelectorAll(".slider__item")];
 
-next.onclick = () => {
-    slider[slideId].classList.remove("slider__item_active");
-    if (slideId === slider.length - 1) {
-        slideId = 0;
-    } else {
-        slideId++;
-    }
-    slider[slideId].classList.add("slider__item_active");
+let currentSlide = 0;
+
+const showSlide = (slide) => {
+  sliderItems[currentSlide].classList.remove("slider__item_active");
+  currentSlide = (slide + sliderItems.length) % sliderItems.length;
+  sliderItems[currentSlide].classList.add("slider__item_active");
 };
 
-prev.onclick = () => {
-    slider[slideId].classList.remove("slider__item_active");
-    if (slideId === 0) {
-        slideId = slider.length - 1;
-    } else {
-        slideId++;
-    }
-    slider[slideId].classList.add("slider__item_active");
+arrowPrev.onclick = () => {
+  showSlide(currentSlide - 1);
+};
+
+arrowNext.onclick = () => {
+  showSlide(currentSlide + 1);
 };
