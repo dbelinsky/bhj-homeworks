@@ -1,38 +1,78 @@
-const wordInput = document.getElementById('task__input');
-const addButton = document.getElementById('tasks__add');
-const taskList = document.getElementById('tasks__list');
+const inputTask = document.getElementById('task__input');
+const addTask = document.querySelector('.tasks__add');
+const taskList = document.querySelector('.tasks__list');
+const taksRemove = document.querySelector('.task__remove');
+let taskStorageKey = 'tasks';
 
-wordInput.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        addWord();
+const addTaskToLocalStorage = () => {
+    const tasks = [];
+    taskList.querySelectorAll('.task').forEach((taskItem) => {
+        const taskItemTitle = taskItem.querySelector('.task__title').textContent.trim();
+        tasks.push(taskItemTitle);
+    })
+    const tasksJson = JSON.stringify(tasks);
+    window.localStorage.setItem(taskStorageKey, tasksJson);
+};
+
+
+window.addEventListener('load', function() {
+    const savedTasks = window.localStorage.getItem(taskStorageKey);
+    console.log(savedTasks);
+    if (savedTasks) {
+        const tasks = JSON.parse(savedTasks);
+        for (const task of tasks) {
+            taskList.innerHTML += `
+                <div class="task">
+                    <div class="task__title">
+                        ${task}
+                    </div>
+                    <a href="#" class="task__remove">&times;</a>
+                </div>
+            `;
+        }
     }
 });
 
-addButton.addEventListener('click', addWord);
 
-function addWord() {
-    const word = wordInput.value.trim();
-    if (word !== '') {
-        const task = document.createElement('div');
-        task.classList.add('task');
-
-        const title = document.createElement('div');
-        title.classList.add('task__title');
-        title.textContent = word;
-
-        const deleteButton = document.createElement('span');
-        deleteButton.classList.add('task__delete');
-        deleteButton.textContent = '#';
-        deleteButton.addEventListener('click', function() {
-            task.remove();
-        });
-
-        task.appendChild(title);
-        task.appendChild(deleteButton);
-        taskList.appendChild(task);
-
-        wordInput.value = '';
-        wordInput.focus();
+addTask.addEventListener('click', function(event) {
+    event.preventDefault();
+    if(inputTask.value.trim() === '') {
+        return;
     }
-}
+    taskList.innerHTML += `
+        <div class="task">
+            <div class="task__title">
+                ${inputTask.value}
+            </div>
+            <a href="#" class="task__remove">&times;</a>
+        </div>
+    `;
+    inputTask.value = '';
+    addTaskToLocalStorage();
+});
 
+
+inputTask.addEventListener('keydown', function(event) {
+    if(event.key === 'Enter' && inputTask.value.trim() !== '') {
+        taskList.innerHTML += `
+            <div class="task">
+                <div class="task__title">
+                    ${inputTask.value}
+                </div>
+                <a href="#" class="task__remove">&times;</a>
+            </div>
+        `;
+        inputTask.value = '';
+        addTaskToLocalStorage();
+    }
+});
+
+
+taskList.addEventListener('click', function(event) {
+    const target = event.target;
+    if (target.classList.contains('task__remove')) {
+        const taskTargetItem = target.closest('.task');
+        taskTargetItem.remove();
+        addTaskToLocalStorage();
+    }
+});
